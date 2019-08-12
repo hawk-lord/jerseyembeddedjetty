@@ -6,8 +6,9 @@ import java.time.LocalDate;
 /**
  * An immutable value object.
  *
- * If for instance the credit card balance is paid from the bank account, the bank account is credit and
- * the credit card account is debit.
+ * If for instance the credit card balance is paid from the bank account, the bank account is credited and
+ * the credit card account is debited.
+ * If a salary is paid to the bank account, the salary income account is credited and bank account is debited.
  *
  */
 public class AccountingEntry implements Comparable {
@@ -18,6 +19,7 @@ public class AccountingEntry implements Comparable {
     private final MonetaryAmount amount;
     private final Account creditAccount;
     private final Account debitAccount;
+
 
     /**
      *
@@ -69,10 +71,18 @@ public class AccountingEntry implements Comparable {
         return amount;
     }
 
+    /**
+     *
+     * @return
+     */
     public Account getCreditAccount() {
         return creditAccount;
     }
 
+    /**
+     *
+     * @return
+     */
     public Account getDebitAccount() {
         return debitAccount;
     }
