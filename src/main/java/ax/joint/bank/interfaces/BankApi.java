@@ -102,6 +102,15 @@ public class BankApi {
         return Response.status(Response.Status.OK).entity(newId).build();
     }
 
+    /**
+     * Retrieve a transaction using its id.
+     *
+     * Test with (example):
+     * curl -i -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:8080/rest/api/moneyTransfer?id=1
+     *
+     * @param entryIdString
+     * @return
+     */
     @GET
     @Path("/moneyTransfer")
     public Response moneyTransfer(@QueryParam("id") String entryIdString) {

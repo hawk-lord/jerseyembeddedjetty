@@ -1,0 +1,18 @@
+An application to create and check money transfers.
+
+There are three accounts: 1, 2, 3.
+
+Start with (example):
+cd \IdeaProjects\jerseyembeddedjetty
+java -jar target/jerseyembeddedjetty-1.0-SNAPSHOT-shaded.jar
+
+Add money transfer (example):
+curl -i --data "whenCharged=2019-08-02" --data "whenBooked=2019-08-04" --data "amount=5.50" --data "creditAccountId=1"  --data "debitAccountId=2"  localhost:8080/rest/api/moneyTransfer
+
+Check if money transfer exists (example):
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:8080/rest/api/moneyTransfer?id=1
+
+
+
+
+

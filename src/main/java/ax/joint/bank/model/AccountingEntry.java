@@ -4,7 +4,7 @@ import javax.money.MonetaryAmount;
 import java.time.LocalDate;
 
 /**
- * An immutable value object.
+ * An immutable object.
  *
  * If for instance the credit card balance is paid from the bank account, the bank account is credited and
  * the credit card account is debited.
