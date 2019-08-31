@@ -1,18 +1,13 @@
-An application to create and check money transfers.
+An application to create annuity payment plans.
 
-There are three accounts: 1, 2, 3.
 
 Start with (example):
 cd \IdeaProjects\jerseyembeddedjetty
-java -jar target/jerseyembeddedjetty-1.0-SNAPSHOT-shaded.jar
+java -jar java -jar target/JerseyJettyEx.jar
 
-Add money transfer (example):
-curl -i --data "whenCharged=2019-08-02" --data "whenBooked=2019-08-04" --data "amount=5.50" --data "creditAccountId=1"  --data "debitAccountId=2"  localhost:8080/rest/api/moneyTransfer
-
-Check if money transfer exists (example):
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:8080/rest/api/moneyTransfer?id=1
-
-
-
+Get  (example):
+curl -X POST -i -H "Accept: application/json" \
+-H "Content-Type: application/json" http://localhost:8080/rest/api/generate-plan \
+-d '{"duration":"24", "interestRate":"5", "principalAmount":"5000", "startDate":"2018-01-01"}'
 
 
