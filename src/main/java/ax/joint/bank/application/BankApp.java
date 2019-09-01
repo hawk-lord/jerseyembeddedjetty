@@ -1,58 +1,88 @@
 package ax.joint.bank.application;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
+import ax.joint.bank.model.Account;
+import ax.joint.bank.model.AccountingEntry;
+
+import javax.money.MonetaryAmount;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class BankApp {
 
-    private static final int DAYS_IN_MONTH = 30;
-    private static final int DAYS_IN_YEAR = 360;
-    private static final int PER_CENT = 100;
+    private final List<AccountingEntry> accountingEntryList = new ArrayList<>();
 
+    private final List<Account> accounts = new ArrayList<>();
 
-    public List<Instalment> calculate(final int duration, final BigDecimal interestRate,
-                                      final BigDecimal principalAmount, final LocalDate startDate) {
-
-        // Using double instead of BigDecimal to simplify the code.
-        double interestRateMonth = interestRate.doubleValue();
-        interestRateMonth /= PER_CENT;
-        interestRateMonth *= DAYS_IN_MONTH;
-        interestRateMonth /= DAYS_IN_YEAR;
-
-        final BigDecimal interestRateMonthBD = BigDecimal.valueOf(interestRateMonth);
-
-        final double interestDouble = interestRateMonth * principalAmount.doubleValue();
-        final double annuityDouble = interestDouble / (1 - Math.pow((1 + interestRateMonth), -duration));
-
-        BigDecimal annuityBD = BigDecimal.valueOf(annuityDouble).setScale(2, RoundingMode.HALF_EVEN);
-
-        BigDecimal initialOutstandingPrincipalBD = principalAmount;
-
-        final List<Instalment> instalments = new ArrayList<>();
-
-        for (int i = 0; i < duration; i++) {
-
-            final LocalDate date = startDate.plusMonths(i);
-
-            final BigDecimal interestBD = initialOutstandingPrincipalBD
-                    .multiply(interestRateMonthBD).setScale(2, RoundingMode.HALF_EVEN);
-            if (i + 1 == duration) {
-                annuityBD = initialOutstandingPrincipalBD.add(interestBD);
-            }
-            final BigDecimal principalBD = annuityBD.subtract(interestBD);
-            final BigDecimal remainingOutstandingPrincipalBD = initialOutstandingPrincipalBD.subtract(principalBD);
-            final Instalment instalment = new Instalment(annuityBD, date, initialOutstandingPrincipalBD, interestBD,
-                    principalBD, remainingOutstandingPrincipalBD);
-            instalments.add(instalment);
-
-            initialOutstandingPrincipalBD = remainingOutstandingPrincipalBD;
-
-        }
-
-        return instalments;
+    /**
+     * Add some accounts so adding transactions can be done from the start.
+     */
+    public BankApp() {
+        final Account bankAccount = new Account(1, "Bank Account");
+        accounts.add(bankAccount);
+        final Account creditCardAccount = new Account(2, "Credit Card Account");
+        accounts.add(creditCardAccount);
+        final Account loanAccount = new Account(3, "Loan Card Account");
+        accounts.add(loanAccount);
     }
 
+    /**
+     * To keep it simple, two-legged transactions are used.
+     * Multi-legged transactions could be implemented by a Transaction class with a list of AccountingEntry.
+     *  @param whenCharged
+     * @param whenBooked
+     * @param amount
+     * @param creditAccountId
+     * @param debitAccountId
+     * @return
+     */
+    public int addTransaction(final LocalDate whenCharged,
+                              final LocalDate whenBooked,
+                              final MonetaryAmount amount,
+                              final int creditAccountId,
+                              final int debitAccountId) {
+
+
+        final AccountingEntry maxEntry = accountingEntryList.stream()
+                .max(Comparator.comparing(AccountingEntry::getId))
+                .orElse(null);
+        final int newId = maxEntry != null ? maxEntry.getId() + 1 : 1;
+
+        final Account creditAccount = findAccount(creditAccountId);
+        final Account debitAccount = findAccount(debitAccountId);
+        final AccountingEntry accountingEntry =
+                new AccountingEntry(newId,
+                        whenCharged,
+                        whenBooked,
+                        amount,
+                        creditAccount,
+                        debitAccount);
+        accountingEntryList.add(accountingEntry);
+        return newId;
+    }
+
+    public AccountingEntry findTransaction(final int id) throws AccountingEntryNotFoundException {
+        if (accountingEntryList == null) {
+            throw new AccountingEntryNotFoundException(String.valueOf(id));
+        }
+        if (accountingEntryList.size() == 0) {
+            throw new AccountingEntryNotFoundException(String.valueOf(id));
+        }
+        for (AccountingEntry accountingEntry: accountingEntryList) {
+            if (accountingEntry.getId() == id) {
+                return accountingEntry;
+            }
+        }
+        throw new AccountingEntryNotFoundException(String.valueOf(id));
+    }
+
+    private Account findAccount(final int accountId) {
+        for (Account account: accounts) {
+            if (account.getId() == accountId) {
+                return account;
+            }
+        }
+        throw new BankAccountNotFoundException(String.format("Account id %d was not found", accountId));
+    }
 }
